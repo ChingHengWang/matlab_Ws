@@ -1,10 +1,8 @@
 %kalman_filter
-Z=(1:100)+randn(1,100);
+Z=-(1:100)+randn(1,100);
 figure; 
 %plot(Z);
-
-
-
+plot(Z);
 
 z_pre=0;
 
@@ -13,7 +11,7 @@ for i=1:1:100
     zv(i)=(Z(i)-z_pre)/1;
     z_pre=Z(i);
 end
-
+figure;
 plot(zv);hold on;
 
 X=[0;0];
