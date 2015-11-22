@@ -36,6 +36,7 @@ int main () {
   {
     while ( getline (myfile,line) )
     {
+
 	string tmp1,tmp2;	
 	stringstream ss(line);
 	getline(ss,tmp1,':');
@@ -46,7 +47,6 @@ int main () {
 	ss>>tmp2;
         outfile2<<tmp2<<endl;
 	//cout<<tmp2<<endl;
-
 /* 
       if (line.compare("Z_K")==1)
   	{sw=1;getline (myfile,line);}
