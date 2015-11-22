@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.1"
+    ComputedModelVersion    "1.2"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -25,9 +25,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "root"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Nov 16 00:44:36 2015"
+  LastModifiedDate	  "Mon Nov 16 10:16:55 2015"
   RTWModifiedTimeStamp	  369533385
-  ModelVersionFormat	  "1.%<AutoIncrement:1>"
+  ModelVersionFormat	  "1.%<AutoIncrement:2>"
   ConfigurationManager	  "None"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
@@ -560,7 +560,7 @@ Model {
       }
       Name		      "Configuration"
       CurrentDlgPage	      "Solver"
-      ConfigPrmDlgPosition    " [ 228, 178, 1138, 690 ] "
+      ConfigPrmDlgPosition    " [ 219, 169, 1147, 724 ] "
     }
     PropName		    "ConfigurationSets"
   }
@@ -664,7 +664,7 @@ Model {
   }
   System {
     Name		    "test"
-    Location		    [513, 252, 1093, 512]
+    Location		    [765, 188, 1345, 448]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -728,9 +728,9 @@ Model {
       IntegratorMethod	      "Forward Euler"
       FilterMethod	      "Forward Euler"
       Form		      "Parallel"
-      P			      "20"
-      I			      "3"
-      D			      "5"
+      P			      "2"
+      I			      "0"
+      D			      "0"
       N			      "100"
       InitialConditionSource  "internal"
       InitialConditionForIntegrator "0"
@@ -828,13 +828,16 @@ Model {
       Ports		      [1]
       Position		      [475, 143, 505, 177]
       Floating		      off
-      Location		      [171, 75, 830, 767]
+      Location		      [83, 75, 742, 767]
       Open		      on
       NumInputPorts	      "1"
       List {
 	ListType		AxesTitles
 	axes1			"%<SignalLabel>"
       }
+      TimeRange		      "19"
+      YMin		      "-0.1"
+      YMax		      "2"
       DataFormat	      "StructureWithTime"
       SampleTime	      "0"
     }

@@ -25,18 +25,29 @@ int main () {
   vector<string> actual; actual.clear();
   vector<string> target; target.clear();
   vector<string> dT; dT.clear();
-  fstream myfile ("record.txt");
+  fstream myfile ("amp_200_w_0.5_30_sT_0.02.txt");
   ofstream outfile1;
   ofstream outfile2;
+  ofstream outfile3;
 
-  outfile1.open ("target.txt",ios::in|ios::trunc);
-  outfile2.open ("actual.txt",ios::in|ios::trunc);
+  outfile1.open ("sin_frequency_input.txt",ios::in|ios::trunc);
+  outfile2.open ("pwm_input.txt",ios::in|ios::trunc);
+  outfile3.open ("angular_speed_output.txt",ios::in|ios::trunc);
 
   if (myfile.is_open() && outfile1.is_open() && outfile2.is_open())
   {
     while ( getline (myfile,line) )
     {
+	string tmp1,tmp2,tmp3;	
+	stringstream ss(line);
+	ss>>tmp1;ss>>tmp2;ss>>tmp3;
+        outfile1<<tmp1<<endl;
+        outfile2<<tmp2<<endl;
+        outfile3<<tmp3<<endl;
 
+
+
+/*
 	string tmp1,tmp2;	
 	stringstream ss(line);
 	getline(ss,tmp1,':');
@@ -47,6 +58,7 @@ int main () {
 	ss>>tmp2;
         outfile2<<tmp2<<endl;
 	//cout<<tmp2<<endl;
+*/
 /* 
       if (line.compare("Z_K")==1)
   	{sw=1;getline (myfile,line);}
@@ -75,6 +87,7 @@ int main () {
     myfile.close();
     outfile1.close();
     outfile2.close();
+    outfile3.close();
 
   }
   else cout << "Unable to open file"; 

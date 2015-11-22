@@ -25,7 +25,7 @@ int main () {
   vector<string> actual; actual.clear();
   vector<string> target; target.clear();
   vector<string> dT; dT.clear();
-  fstream myfile ("record.txt");
+  fstream myfile ("amp_200_w_0.5_30_sT_0.02.txt");
   ofstream outfile1;
   ofstream outfile2;
 
@@ -36,7 +36,11 @@ int main () {
   {
     while ( getline (myfile,line) )
     {
-
+	string tmp1,tmp2,tmp3;	
+	stringstream ss(line);
+	ss>>tmp1;ss>>tmp2;ss>>tmp3;
+	cout<<tmp1<<" "<<tmp2<<" "<<tmp3<<" "<<endl;
+/*
 	string tmp1,tmp2;	
 	stringstream ss(line);
 	getline(ss,tmp1,':');
@@ -47,6 +51,7 @@ int main () {
 	ss>>tmp2;
         outfile2<<tmp2<<endl;
 	//cout<<tmp2<<endl;
+*/
 /* 
       if (line.compare("Z_K")==1)
   	{sw=1;getline (myfile,line);}
