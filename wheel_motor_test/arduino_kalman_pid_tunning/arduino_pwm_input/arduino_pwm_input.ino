@@ -71,8 +71,10 @@ int k=0;
 double w=0.5;
 double theta=0;
 double total_theta=0;
-int N=2;
+int N=0;
 int wave_count=0;
+int wave_count_old=0;
+
 //kalman filter
 float X[2][1];float X_[2][1];
 float P[2][2];float P_[2][2];
@@ -134,15 +136,14 @@ void loop()
         last_error = error;  
         //PWM_val= constrain((double)pidTerm, -255, 255);
         
-        theta=fmod(w*k*looptime,2*PI);
-        PWM_val=200*sin(theta);
+        PWM_val=250;
 
         pwmCmd();
-        k=k+1;        
-        total_theta=total_theta+w*1*looptime; 
-        wave_count=floor(total_theta/(2*PI));
-        w=0.5+wave_count*0.5;
-        printMotorInfoMatlab();
+       
+
+
+        //printMotorInfoMatlab();
+        printMotorInfo();
      }
 }
 
@@ -246,10 +247,10 @@ void printMotorInfo()
    //Serial.print(" omega_target:"); Serial.print(omega_target);
    //Serial.print(" omega_actual:"); Serial.print(omega_actual);
    Serial.print(" omega_actual_filter:"); Serial.print(omega_actual_filter);
-   Serial.print(" kd_term:"); Serial.print(Kd * d_error); 
-   Serial.print(" kp_term:"); Serial.print(Kp * error);
+   //Serial.print(" kd_term:"); Serial.print(Kd * d_error); 
+   //Serial.print(" kp_term:"); Serial.print(Kp * error);
    //Serial.print(" dT:"); Serial.print(dT);
-   Serial.print(" error:"); Serial.print(error);
+   //Serial.print(" error:"); Serial.print(error);
      
    Serial.println();
 

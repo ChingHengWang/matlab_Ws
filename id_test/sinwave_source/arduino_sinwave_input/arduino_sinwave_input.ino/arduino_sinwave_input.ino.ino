@@ -71,8 +71,10 @@ int k=0;
 double w=0.5;
 double theta=0;
 double total_theta=0;
-int N=2;
+int N=0;
 int wave_count=0;
+int wave_count_old=0;
+
 //kalman filter
 float X[2][1];float X_[2][1];
 float P[2][2];float P_[2][2];
@@ -140,9 +142,13 @@ void loop()
         pwmCmd();
         k=k+1;        
         total_theta=total_theta+w*1*looptime; 
-        wave_count=floor(total_theta/(2*PI));
-        w=0.5+wave_count*0.5;
+       
+        wave_count=floor(total_theta/((2)*PI));
+        
+        //w=floor(5*log(0.4*wave_count+1.3));
+        w=0.05+wave_count*0.2;
         printMotorInfoMatlab();
+        //printMotorInfo2();
      }
 }
 
