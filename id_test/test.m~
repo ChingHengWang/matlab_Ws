@@ -1,1 +1,22 @@
-G=zpk([-2],[0 -1 -3 -3])
+%{
+Nyquist plot
+Bode plot
+
+Transfer function:
+       10
+-----------------
+(1+1.312s)^2
+%}
+%close all;
+num=[0.002];
+den=[15.84 3.185 1];
+G=tf(num,den)
+s=tf('s');
+Kp=50;
+Ki=50;
+Kd=3;
+C=Kp+Ki/s+Kd*s;
+tf(C)
+T=feedback(C*G,1);
+step(T);
+%figure;bode(g);

@@ -136,7 +136,7 @@ void loop()
         last_error = error;  
         //PWM_val= constrain((double)pidTerm, -255, 255);
         
-        PWM_val=250;
+        PWM_val=200;
 
         pwmCmd();
        
