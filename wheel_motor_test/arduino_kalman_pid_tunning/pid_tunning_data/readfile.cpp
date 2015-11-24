@@ -25,7 +25,7 @@ int main () {
   vector<string> actual; actual.clear();
   vector<string> target; target.clear();
   vector<string> dT; dT.clear();
-  fstream myfile ("record2.txt");
+  fstream myfile ("record.txt");
   ofstream outfile1;
   ofstream outfile2;
 
