@@ -4,9 +4,13 @@
 #include <string>
 #include <vector>
 #include <sstream>
+
+int status; 
+
 using namespace std;
-
-
+string myfilepath="record.txt";
+string outfile1path="target.txt";
+string outfile2path="feedback.txt";
 void display(vector<string> &v)
 {
     for(int i = 0; i < v.size(); i++)
@@ -25,12 +29,12 @@ int main () {
   vector<string> actual; actual.clear();
   vector<string> target; target.clear();
   vector<string> dT; dT.clear();
-  fstream myfile ("record.txt");
+  fstream myfile (myfilepath.c_str());
   ofstream outfile1;
   ofstream outfile2;
 
-  outfile1.open ("target.txt",ios::in|ios::trunc);
-  outfile2.open ("feedback.txt",ios::in|ios::trunc);
+  outfile1.open (outfile1path.c_str(),ios::in|ios::trunc);
+  outfile2.open (outfile2path.c_str(),ios::in|ios::trunc);
 
   if (myfile.is_open() && outfile1.is_open() && outfile2.is_open())
   {

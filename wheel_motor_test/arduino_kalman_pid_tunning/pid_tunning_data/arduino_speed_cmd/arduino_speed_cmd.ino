@@ -60,9 +60,9 @@ double last_error=0;
 double sum_error=0;     
 double pidTerm = 0;     
  
-float Kp = 1;//50;
-float Ki = 1;//50;
-float Kd = 1;//3;
+float Kp = 50;//50;
+float Ki = 50;//50;
+float Kd = 3;//3;
 int k=0;
    
 
