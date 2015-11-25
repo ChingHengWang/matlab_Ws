@@ -68,7 +68,7 @@ int k=0;
 
 //id
 
-double w=0.5;
+double w=0.1;
 double theta=0;
 double total_theta=0;
 int N=0;
@@ -117,7 +117,8 @@ void setup() {
 
 void loop() 
 {       
- 
+
+ if(w<=15){
   if((millis()-lastMilli) >= looptime*1000)   
      {                                    // enter tmed loop
         dT = (double)(millis()-lastMilli)/1000;
@@ -136,20 +137,20 @@ void loop()
         last_error = error;  
         //PWM_val= constrain((double)pidTerm, -255, 255);
         
-        theta=fmod(w*k*looptime,2*PI);
-        PWM_val=250*sin(theta);
-
+        PWM_val=150*sin(w*2*PI*k*looptime);
+        k=k+1;
         pwmCmd();
-        k=k+1;        
-        total_theta=total_theta+w*1*looptime; 
-       
-        wave_count=floor(total_theta/((2)*PI));
-        
-        //w=floor(5*log(0.4*wave_count+1.3));
-        w=0.05+wave_count*0.2;
+
+        w=w+0.001;
         printMotorInfoMatlab();
         //printMotorInfo2();
      }
+ }
+ else{
+  
+  while(1);
+  
+  }
 }
 
 float KalmanFilter(float observe_Z){

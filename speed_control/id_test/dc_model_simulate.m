@@ -1,5 +1,5 @@
 %{
-Nyquist plot
+DC model Identification
 Bode plot
 
 Transfer function:
@@ -12,11 +12,8 @@ num=[0.002];
 den=[15.84 3.185 1];
 G=tf(num,den)
 s=tf('s');
-Kp=50;
-Ki=50;
-Kd=3;
+Kp=50;Ki=50;Kd=3;
 C=Kp+Ki/s+Kd*s;
-tf(C)
-T=feedback(C*G,1);
-step(T);
+T=feedback(C*G,1);%T=(CG)/(1+CG)
+step(T); %observe step response
 %figure;bode(g);

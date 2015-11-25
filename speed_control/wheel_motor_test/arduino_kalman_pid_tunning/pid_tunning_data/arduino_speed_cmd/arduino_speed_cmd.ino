@@ -12,7 +12,7 @@
 #define InB 5
 
 #define LOOPTIME 50
-float looptime=0.05;
+float looptime=0.02;
 int pinAState = 0;
 int pinAStateOld = 0;
 int pinBState = 0;
@@ -60,9 +60,9 @@ double last_error=0;
 double sum_error=0;     
 double pidTerm = 0;     
  
-float Kp = 50;
-float Ki = 50;
-float Kd = 3;
+float Kp = 50;//50;
+float Ki = 50;//50;
+float Kd = 3;//3;
 int k=0;
    
 
@@ -71,8 +71,10 @@ int k=0;
 double w=0.5;
 double theta=0;
 double total_theta=0;
-int N=2;
+int N=0;
 int wave_count=0;
+int wave_count_old=0;
+
 //kalman filter
 float X[2][1];float X_[2][1];
 float P[2][2];float P_[2][2];
@@ -102,7 +104,7 @@ void setup() {
 
    X[0][0]=0.0f; X[1][0]=0.0f;
    P[0][0]=1.0f; P[0][1]=0.0f; P[1][0]=0.0f; P[1][1]=1.0f;
-   F[0][0]=1.0f; F[0][1]=0.5f;//sampling time is 0.1s 
+   F[0][0]=1.0f; F[0][1]=0.02f;//sampling time is 0.02s 
    F[1][0]=0.0f; F[1][1]=1.0f;
    Q[0][0]=0.00001f; Q[0][1]=0.0f; Q[1][0]=0.0f; Q[1][1]=0.00001f;
    H[0][0]=1.0f; H[0][1]=0.0f;
@@ -132,17 +134,21 @@ void loop()
         d_error = (double)(error - last_error) / dT;
         pidTerm = Kp * error+ Ki * sum_error+ Kd * d_error;                          
         last_error = error;  
-        //PWM_val= constrain((double)pidTerm, -255, 255);
+        PWM_val= constrain((double)pidTerm, -255, 255);
         
-        theta=fmod(w*k*looptime,2*PI);
-        PWM_val=200*sin(theta);
+        //theta=fmod(w*k*looptime,2*PI);
+        //PWM_val=250*sin(theta);
 
         pwmCmd();
         k=k+1;        
-        total_theta=total_theta+w*1*looptime; 
-        wave_count=floor(total_theta/(2*PI));
-        w=0.5+wave_count*0.5;
+        //total_theta=total_theta+w*1*looptime; 
+       
+        //wave_count=floor(total_theta/((2)*PI));
+        
+        //w=floor(5*log(0.4*wave_count+1.3));
+        //w=0.05+wave_count*0.2;
         printMotorInfoMatlab();
+        //printMotorInfo2();
      }
 }
 
@@ -275,13 +281,22 @@ void printMotorInfo2()
 
 void printMotorInfoMatlab()  
 {                                                                      
-   //Serial.print(" ");                  
-   //Serial.print(omega_target);
-   Serial.print(" ");                  
-   Serial.print(PWM_val);
+
    Serial.print(" ");                  
    Serial.print(omega_actual_filter);
-
+   Serial.print(" ");                  
+   Serial.print(Kp * error);
+   Serial.print(" ");                  
+   Serial.print(Ki * sum_error);
+   Serial.print(" ");                  
+   Serial.print(Kd * d_error);
+   Serial.print(" ");                  
+   Serial.print(k*looptime);
+   
+   //Serial.print(" ");                  
+   //Serial.print(w);
+   //Serial.print(" ");                  
+   //Serial.print(PWM_val);
    //Serial.print(" ");                  
    //Serial.print(dT);
  
