@@ -48,7 +48,7 @@ double dT=0.0;
 double omega_target = 0.0;
 double omega_actual = 0;
 
-//omega via kalman filter 
+//omega viakalman filter 
 double omega_actual_filter=0;
 
 int PWM_val = 0;                                // (25% = 64; 50% = 127; 75% = 191; 100% = 255)
@@ -71,14 +71,6 @@ float Ki = 50;
 float Kd = 3;
 int k=0;
    
-//id
-double w=0.5;
-double theta=0;
-double total_theta=0;
-int N=0;
-int wave_count=0;
-int wave_count_old=0;
-
 //kalman filter
 float X[2][1];float X_[2][1];
 float P[2][2];float P_[2][2];
@@ -93,16 +85,18 @@ float I[2][2];
 
 
 void setup() { 
-   pinMode(encoder0PinA, INPUT); 
-   digitalWrite(encoder0PinA, HIGH);       // turn on pullup resistor
-   pinMode(encoder0PinB, INPUT); 
-   digitalWrite(encoder0PinB, HIGH);       // turn on pullup resistor
-  
-   attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
-   attachInterrupt(1, doEncoder, CHANGE);
-   pinMode(Rx, INPUT); pinMode(Tx, OUTPUT);
-   pinMode(InA, OUTPUT); 
-   pinMode(InB, OUTPUT); 
+ pinMode(encoder0PinA, INPUT); 
+ digitalWrite(encoder0PinA, HIGH);       // turn on pullup resistor
+ pinMode(encoder0PinB, INPUT); 
+ digitalWrite(encoder0PinB, HIGH);       // turn on pullup resistor
+
+ attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
+ attachInterrupt(1, doEncoder, CHANGE);
+ pinMode(Rx, INPUT); pinMode(Tx, OUTPUT);
+ pinMode(InA, OUTPUT); 
+ pinMode(InB, OUTPUT); 
+ 
+ 
  //To Serial Modify 3
  //mySerial.begin (19200);
  Serial.begin (19200);
@@ -119,14 +113,12 @@ void setup() {
    R[0][0]=0.1f;
    I[0][0]=1.0f;I[0][1]=0.0f;I[1][0]=0.0f;I[1][1]=1.0f;
   
- 
 } 
 
 void loop() 
 {       
- 
- 
-  if((millis()-lastMilli) >= looptime*1000)   
+  readCmd_wheel_angularVel();
+  if((millis()-lastMilli) >= looptime*1000)  
      {                                    // enter tmed loop
         dT = (double)(millis()-lastMilli)/1000;
         lastMilli = millis();
@@ -140,7 +132,7 @@ void loop()
 	
 	
 	
-        //sendFeedback_wheel_angularVel(); //send actually speed to mega
+        sendFeedback_wheel_angularVel(); //send actually speed to mega
         //PWM_val = (updatePid(omega_target, omega_actual_filter));                       // compute PWM value from rad/s 
         error = omega_target - omega_actual_filter; 
         sum_error = sum_error + error * dT;
@@ -157,6 +149,36 @@ void loop()
 }
 
 
+// mySerial to Serial
+void readCmd_wheel_angularVel()
+{
+  if (Serial.available() > 4) 
+  {
+    char rT = (char)Serial.read(); //read target speed from mega
+          if(rT == '{')
+            {
+              char commandArray[3];
+              Serial.readBytes(commandArray,3);
+              byte rH=commandArray[0];
+              byte rL=commandArray[1];
+              char rP=commandArray[2];
+              if(rP=='}')         
+                {
+                  target_receive = (rH<<8)+rL; 
+                  omega_target = double (target_receive*0.00031434064);  //convert received 16 bit integer to actual speed
+                }
+            }
+  }         
+}
+void sendFeedback_wheel_angularVel()
+{
+  actual_send = int(omega_actual/0.00031434064); //convert rad/s to 16 bit integer to send
+  char sT='{'; //send start byte
+  byte sH = highByte(actual_send); //send high byte
+  byte sL = lowByte(actual_send);  //send low byte
+  char sP='}'; //send stop byte
+  Serial.write(sT); Serial.write(sH); Serial.write(sL); Serial.write(sP);
+}
 
 void getMotorData()  
 {                                   
@@ -167,7 +189,7 @@ void getMotorData()
 }
 
 double updatePid(double targetValue,double currentValue)   
-{   
+{            
                                                
 
                       
