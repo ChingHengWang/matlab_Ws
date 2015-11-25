@@ -34,7 +34,7 @@ byte rH = 0;  //receive high byte
 byte rL = 0;  //receive low byte
 byte rP = 0;  //receive stop byte
 
-SoftwareSerial mySerial(Rx, Tx);
+//SoftwareSerial mySerial(Rx, Tx);
 
 volatile long Encoderpos = 0;
 volatile long unknownvalue = 0;
@@ -92,7 +92,7 @@ void setup() {
 
  attachInterrupt(0, doEncoder, CHANGE);  // encoder pin on interrupt 0 - pin 2
  attachInterrupt(1, doEncoder, CHANGE);
- pinMode(Rx, INPUT); pinMode(Tx, OUTPUT);
+// pinMode(Rx, INPUT); pinMode(Tx, OUTPUT);
  pinMode(InA, OUTPUT); 
  pinMode(InB, OUTPUT); 
  
@@ -255,10 +255,6 @@ void printMotorInfo2()
 {       
    Serial.print(" PWM_val:"); Serial.print(PWM_val);
    Serial.print(" k:"); Serial.print(k);
-   Serial.print(" theta:"); Serial.print(theta);
-   Serial.print(" toatal_theta:"); Serial.print(total_theta);
-   Serial.print(" w:"); Serial.print(w);   
-   Serial.print(" wave_count:"); Serial.print(wave_count); 
    //Serial.print(" pidTerm:"); Serial.print(pidTerm);
   //Serial.print(" last_error:"); Serial.print(last_error*1000);
   //Serial.print(" d_error:"); Serial.print(d_error);
