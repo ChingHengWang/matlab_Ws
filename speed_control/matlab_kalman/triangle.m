@@ -1,0 +1,93 @@
+close all;
+
+
+
+X=[0;0];
+P=[1 0;0 1];
+F=[1 1;0 1];
+Q=[0.0001 0;0 0.0001];
+H=[1 0];
+R=5;
+
+omega_actual=0;
+
+
+for a=0.01:0.01:0.10
+figure;
+for i=1:1500
+    if(i>200)
+        omega_actual=(i-200)*a+(mod(randn(1,1),0.4)-0.2);
+    end
+
+    if(i>=(200+5/a))
+        omega_actual=5+(mod(randn(1,1),0.2)-0.1);
+    end
+    if(i>=200+5/a+200)
+        omega_actual=5-(i-(200+5/a+200))*a+(mod(randn(1,1),0.2)-0.1);
+    end
+    if(i>=200+10/a+200)
+        omega_actual=0+(mod(randn(1,1),0.2)-0.1);
+    end    
+    
+    
+    X_=F*X;
+    P_=F*P*F'+Q;
+    K=P_*H'/(H*P_*H'+R);
+    X=X_+K*(omega_actual-H*X_);
+    P=(eye(2)-K*H)*P_;
+    omega_actual_filter=X(1);
+    plot(i,omega_actual,'*');hold on;
+    plot(i,omega_actual_filter,'r*');hold on;
+   
+end
+if (a==0.01) title('a=0.01'); end
+if (a==0.02) title('a=0.02'); end
+if (a==0.03) title('a=0.03'); end
+if (a==0.04) title('a=0.04'); end
+if (a==0.05) title('a=0.05'); end
+if (a==0.06) title('a=0.06'); end
+if (a==0.07) title('a=0.07'); end
+if (a==0.08) title('a=0.08'); end
+if (a==0.09) title('a=0.09'); end
+if (a==0.10) title('a=0.10'); end
+end
+
+
+
+
+X=[0;0];
+P=[1 0;0 1];
+F=[1 1;0 1];
+Q=[0.0001 0;0 0.0001];
+H=[1 0];
+R=1;
+figure;
+omega_actual=0;
+for i=1:1200
+    if(i>200)
+        omega_actual=5+(mod(randn(1,1),0.4)-0.2);
+    end
+    %{
+    if (i>=780)
+        omega_actual=4+(mod(randn(1,1),0.2)-0.1);
+    end
+    if (i>=795)
+        omega_actual=2+(mod(randn(1,1),0.2)-0.1);
+    end
+    %}
+    if(i>=850)
+        omega_actual=0+(mod(randn(1,1),0.4)-0.2);
+    end
+    
+    X_=F*X;
+    P_=F*P*F'+Q;
+    K=P_*H'/(H*P_*H'+R);
+    X=X_+K*(omega_actual-H*X_);
+    P=(eye(2)-K*H)*P_;
+    omega_actual_filter=X(1);
+    plot(i,omega_actual,'*');hold on;
+    plot(i,omega_actual_filter,'r*');hold on;
+   
+end
+title('trust observation most, estimate >30 times');
+
