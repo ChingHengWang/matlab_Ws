@@ -43,7 +43,7 @@ unsigned long lastMilli = 0;                    // loop timing
 //long dT = 0;
 double dT=0.0;
 double dT4=0.0;
-double omega_target = 2.0;
+double omega_target = 0.0;
 double omega_actual = 0;
 double omega_actual_filter=0;
 
@@ -123,6 +123,10 @@ void loop()
         dT = (double)(millis()-lastMilli)/1000;
         lastMilli = millis();
 
+        if(millis()>3000)
+          omega_target=2.0;
+        if(millis()>16000)
+          omega_target=0.0;           
                                                        // calculate speed
         getMotorData();    
         omega_actual_filter=KalmanFilter((float)omega_actual);
@@ -134,8 +138,8 @@ void loop()
         d_error = (double)(error - last_error) / dT;
         pidTerm = Kp * error+ Ki * sum_error+ Kd * d_error;                          
         last_error = error;  
-        PWM_val= constrain((double)pidTerm, -255, 255);
-        
+        //PWM_val= constrain((double)pidTerm, -255, 255);
+        PWM_val=255;
         //theta=fmod(w*k*looptime,2*PI);
         //PWM_val=250*sin(theta);
 
@@ -280,8 +284,11 @@ void printMotorInfo2()
 }
 
 void printMotorInfoMatlab()  
-{                                                                      
-
+{         
+   Serial.print(" ");                  
+   Serial.print(omega_target);                                                               
+   Serial.print(" ");                  
+   Serial.print(omega_actual);
    Serial.print(" ");                  
    Serial.print(omega_actual_filter);
    Serial.print(" ");                  

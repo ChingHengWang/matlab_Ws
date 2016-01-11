@@ -61,9 +61,9 @@ double last_error=0;
 double sum_error=0; 
 double pidTerm = 0; 
 
-float Kp = 80;//50;
-float Ki = 5;//50;
-float Kd = 0;//3;
+float Kp = 30;//50;
+float Ki =0.05;//50;
+float Kd = 0.5;//3;
 int k=0;
 int start_k=0; 
 
@@ -110,9 +110,9 @@ X[0][0]=0.0f; X[1][0]=0.0f;
 P[0][0]=1.0f; P[0][1]=0.0f; P[1][0]=0.0f; P[1][1]=1.0f;
 F[0][0]=1.0f; F[0][1]=0.02f;//sampling time is 0.02s 
 F[1][0]=0.0f; F[1][1]=1.0f;
-Q[0][0]=0.00001f; Q[0][1]=0.0f; Q[1][0]=0.0f; Q[1][1]=0.00001f;
+Q[0][0]=0.000001f; Q[0][1]=0.0f; Q[1][0]=0.0f; Q[1][1]=0.000001f;
 H[0][0]=1.0f; H[0][1]=0.0f;
-R[0][0]=0.1f;
+R[0][0]=0.4f;
 
 I[0][0]=1.0f;I[0][1]=0.0f;I[1][0]=0.0f;I[1][1]=1.0f;
 
@@ -124,8 +124,9 @@ void loop()
 
 if((millis()-lastMilli) >= looptime*1000) 
 { // enter tmed loop
-speed_triangle_plan();
-
+  speed_step_input();
+  //speed_triangle_plan();
+//omega_target=0;
 dT = (double)(millis()-lastMilli)/1000;
 lastMilli = millis();
 
@@ -135,7 +136,7 @@ omega_actual_filter=KalmanFilter((float)omega_actual);
 
 
 //PWM_val = (updatePid(omega_target, omega_actual_filter)); // compute PWM value from rad/s 
-error = omega_target - omega_actual_filter; 
+error = omega_target - omega_actual; 
 sum_error = sum_error + error * dT;
 d_error = (double)(error - last_error) / dT;
 pidTerm = Kp * error+ Ki * sum_error+ Kd * d_error; 
@@ -158,45 +159,64 @@ printMotorInfoMatlab();
 }
 }
 
+void speed_step_input(){
+
+
+if(target_flag==0)
+  omega_target=0.0;
+if(k*looptime>2&&target_flag==0){
+float duration_t=(k-100)*looptime;
+omega_target=5;
+if(duration_t==15){
+  target_flag=1;
+  omega_target=0.0;
+}
+} 
+}
+
 
 void speed_square_plan(){
-  
-  if(target_flag==0)
-  omega_target=2.0;
-  
-  if(k>50&&target_flag==0){
-  float duration_t=(k-50)*looptime;
-  float a_max=0.4;
 
-  omega_target=2.0-duration_t*a_max;
-  if(duration_t==5)
-  target_flag=1;
-  }    
+if(target_flag==0)
+omega_target=2.0;
+
+if(k>500&&target_flag==0){
+float duration_t=(k-500)*looptime;
+float a_max=0.4;
+
+omega_target=2.0-duration_t*a_max;
+if(duration_t==5)
+target_flag=1;
+} 
 }
 
 
 void speed_triangle_plan(){
-  
-  if(target_flag==0)
-  omega_target=2.0;
-  
-  if(k>50&&target_flag==0){
-  duration_t=(k-50)*looptime;  
-  float a_max=(float)4/6;
 
-  if(duration_t<=3){
-    a=duration_t*(a_max/3);
-    omega_target=2.0-(double)duration_t*(double)(a/2);
-  }
-  else{
-    a=a_max-(duration_t-3)*(a_max/3);
-    omega_target=(2.0-3*(double)(3*(a_max/3)/2))-(3*(double)(a_max/2)-((6-duration_t)*(double)a/2));
-    //omega_target=2.0-(double)duration_t*(double)(a/2);
-  }
-  if(duration_t==6)
-  target_flag=1;
-  }    
+if(target_flag==0)
+omega_target=2.0;
+
+if(k>500&&target_flag==0){
+duration_t=(k-500)*looptime; 
+float a_max=(float)4/6;
+
+if(duration_t<=3){
+a=duration_t*(a_max/3);
+omega_target=2.0-(double)duration_t*(double)(a/2);
 }
+else{
+a=a_max-(duration_t-3)*(a_max/3);
+omega_target=(2.0-3*(double)(3*(a_max/3)/2))-(3*(double)(a_max/2)-((6-duration_t)*(double)a/2));
+//omega_target=2.0-(double)duration_t*(double)(a/2);
+}
+if(duration_t==6)
+target_flag=1;
+} 
+}
+
+
+
+
 
 float KalmanFilter(float observe_Z){
 float estimate_Z=0;
@@ -328,23 +348,25 @@ Serial.print(" dT:"); Serial.println(dT);
 void printMotorInfoMatlab() 
 { 
 Serial.print(" "); 
-Serial.print(omega_target);
+Serial.print(omega_target);  
+Serial.print(" "); 
+Serial.print(omega_actual);
 Serial.print(" "); 
 Serial.print(omega_actual_filter);
-Serial.print(" "); 
-Serial.print(a);
-/* 
-Serial.print(Kp * error);
-Serial.print(" "); 
-Serial.print(Ki * sum_error);
-Serial.print(" "); 
-Serial.print(Kd * d_error);
-*/ 
+Serial.print(" ");
+Serial.print(dT);
+//Serial.print(" "); 
+//Serial.print(Kp * error);
+//Serial.print(" "); 
+//Serial.print(Ki * sum_error);
+//Serial.print(" "); 
+//Serial.print(Kd * d_error);
+/*
 Serial.print(" "); 
 Serial.print(duration_t);
 Serial.print(" "); 
-Serial.print(k*looptime);
 
+*/
 //Serial.print(" "); 
 //Serial.print(w);
 //Serial.print(" "); 

@@ -2,8 +2,7 @@
 
 //#include <Metro.h>
 
-//To Serial Modify 1
-//#include "SoftwareSerial.h";
+#include "SoftwareSerial.h";
 
 #define encoder0PinA  2
 #define encoder0PinB  3
@@ -19,9 +18,8 @@ int pinAStateOld = 0;
 int pinBState = 0;
 int pinBStateOld = 0;
 
-//To Serial Modify 2
-//const int Tx = 11;
-//const int Rx = 10; 
+const int Tx = 11;
+const int Rx = 10; 
 
 char commandArray[3];
 byte sT = 0;  //send start byte
@@ -44,11 +42,9 @@ volatile int lastEncoded = 0;
 unsigned long lastMilli = 0;                    // loop timing 
 //long dT = 0;
 double dT=0.0;
-
-double omega_target = 0.0;
+double dT4=0.0;
+double omega_target = 0;
 double omega_actual = 0;
-
-//omega via kalman filter 
 double omega_actual_filter=0;
 
 int PWM_val = 0;                                // (25% = 64; 50% = 127; 75% = 191; 100% = 255)
@@ -58,20 +54,20 @@ int actual_send = 0;
 int target_receive = 0;
 
 
-//update cmd 
 volatile double error=0;
 double d_error=0; 
 double last_error=0;   
 double sum_error=0;     
 double pidTerm = 0;     
  
-//pid
-float Kp = 50;
-float Ki = 50;
-float Kd = 3;
+float Kp = 95;//50;
+float Ki = 10;//50;
+float Kd = 1;//3;
 int k=0;
-   
+int start_k=0;   
+
 //id
+
 double w=0.5;
 double theta=0;
 double total_theta=0;
@@ -91,6 +87,8 @@ float P_TERM[2][2];
 float R[1][1];
 float I[2][2];
 
+//差補
+int target_flag=0;
 
 void setup() { 
    pinMode(encoder0PinA, INPUT); 
@@ -103,20 +101,17 @@ void setup() {
    pinMode(Rx, INPUT); pinMode(Tx, OUTPUT);
    pinMode(InA, OUTPUT); 
    pinMode(InB, OUTPUT); 
- //To Serial Modify 3
- //mySerial.begin (19200);
- Serial.begin (19200);
+   mySerial.begin (19200);
+   Serial.begin (19200);
 
-//Intial Kalman Filter Parameter
    X[0][0]=0.0f; X[1][0]=0.0f;
    P[0][0]=1.0f; P[0][1]=0.0f; P[1][0]=0.0f; P[1][1]=1.0f;
-   F[0][0]=1.0f; F[0][1]=looptime; // F[0][1]= sampling time  
+   F[0][0]=1.0f; F[0][1]=0.02f;//sampling time is 0.02s 
    F[1][0]=0.0f; F[1][1]=1.0f;
-   //Q[0][0] and Q[1][1] more small so we more trust our estimate value
-   //and the final value will stable more fast
    Q[0][0]=0.00001f; Q[0][1]=0.0f; Q[1][0]=0.0f; Q[1][1]=0.00001f;
    H[0][0]=1.0f; H[0][1]=0.0f;
    R[0][0]=0.1f;
+  
    I[0][0]=1.0f;I[0][1]=0.0f;I[1][0]=0.0f;I[1][1]=1.0f;
   
  
@@ -125,151 +120,50 @@ void setup() {
 void loop() 
 {       
  
- 
   if((millis()-lastMilli) >= looptime*1000)   
      {                                    // enter tmed loop
+
+        if(target_flag==0)
+          omega_target=2.0;
+          
+        if(k>500&&target_flag==0){
+
+          int delta_k=k-500;
+          omega_target=2.0-delta_k*0.01;
+          if(omega_target==0.0)
+            target_flag=1;
+          
+        }
         dT = (double)(millis()-lastMilli)/1000;
         lastMilli = millis();
 
                                                        // calculate speed
         getMotorData();    
         omega_actual_filter=KalmanFilter((float)omega_actual);
-	
-	
-	
-	
-	
-	
-        //sendFeedback_wheel_angularVel(); //send actually speed to mega
+ 
+        
         //PWM_val = (updatePid(omega_target, omega_actual_filter));                       // compute PWM value from rad/s 
         error = omega_target - omega_actual_filter; 
         sum_error = sum_error + error * dT;
         d_error = (double)(error - last_error) / dT;
         pidTerm = Kp * error+ Ki * sum_error+ Kd * d_error;                          
         last_error = error;  
-        PWM_val= constrain((double)pidTerm, -255, 255); 
+        PWM_val= constrain((double)pidTerm, -255, 255);
+        
+        //theta=fmod(w*k*looptime,2*PI);
+        //PWM_val=250*sin(theta);
 
         pwmCmd();
         k=k+1;        
+        //total_theta=total_theta+w*1*looptime; 
+       
+        //wave_count=floor(total_theta/((2)*PI));
+        
+        //w=floor(5*log(0.4*wave_count+1.3));
+        //w=0.05+wave_count*0.2;
         printMotorInfoMatlab();
         //printMotorInfo2();
      }
-}
-
-
-
-void getMotorData()  
-{                                   
-  //converting ticks/s to rad/s
-  //omega_actual = 4.5;
-  omega_actual = ((Encoderpos - EncoderposPre)*((double)1/dT))*(double)(2*PI)/(CPR*gear_ratio);  //ticks/s to rad/s
-  EncoderposPre = Encoderpos;                 
-}
-
-double updatePid(double targetValue,double currentValue)   
-{   
-                                               
-
-                      
-  error = targetValue - currentValue; 
-  sum_error = sum_error + error * dT;
-  d_error = (double)(error - last_error) / dT;
-  pidTerm = Kp * error+ Ki * sum_error+ Kd * d_error;                          
-  last_error = error;  
-  return constrain(int(pidTerm/0.04039215686), -255, 255);
-}
-
-
-void doEncoder() {
-//   Encoderpos++;
-  pinAState = digitalRead(2);
-  pinBState = digitalRead(3);
-
-  if (pinAState == 0 && pinBState == 0) {
-    if (pinAStateOld == 1 && pinBStateOld == 0) // forward
-      Encoderpos ++;
-    if (pinAStateOld == 0 && pinBStateOld == 1) // reverse
-      Encoderpos --;
-  }
-  if (pinAState == 0 && pinBState == 1) {
-    if (pinAStateOld == 0 && pinBStateOld == 0) // forward
-      Encoderpos ++;
-    if (pinAStateOld == 1 && pinBStateOld == 1) // reverse
-      Encoderpos --;
-  }
-  if (pinAState == 1 && pinBState == 1) {
-    if (pinAStateOld == 0 && pinBStateOld == 1) // forward
-      Encoderpos ++;
-    if (pinAStateOld == 1 && pinBStateOld == 0) // reverse
-      Encoderpos --;
-  }
-
-  if (pinAState == 1 && pinBState == 0) {
-    if (pinAStateOld == 1 && pinBStateOld == 1) // forward
-      Encoderpos ++;
-    if (pinAStateOld == 0 && pinBStateOld == 0) // reverse
-      Encoderpos --;
-  }
-  pinAStateOld = pinAState;
-  pinBStateOld = pinBState;
-}
-
-
-void printMotorInfo()  
-{                                                                      
-   //Serial.print(" omega_target:"); Serial.print(omega_target);
-   //Serial.print(" omega_actual:"); Serial.print(omega_actual);
-   Serial.print(" omega_actual_filter:"); Serial.print(omega_actual_filter);
-   Serial.print(" kd_term:"); Serial.print(Kd * d_error); 
-   Serial.print(" kp_term:"); Serial.print(Kp * error);
-   //Serial.print(" dT:"); Serial.print(dT);
-   Serial.print(" error:"); Serial.print(error);
-     
-   Serial.println();
-
-}
-
-void printMotorInfo2()  
-{       
-   Serial.print(" PWM_val:"); Serial.print(PWM_val);
-   Serial.print(" k:"); Serial.print(k);
-   Serial.print(" theta:"); Serial.print(theta);
-   Serial.print(" toatal_theta:"); Serial.print(total_theta);
-   Serial.print(" w:"); Serial.print(w);   
-   Serial.print(" wave_count:"); Serial.print(wave_count); 
-   //Serial.print(" pidTerm:"); Serial.print(pidTerm);
-  //Serial.print(" last_error:"); Serial.print(last_error*1000);
-  //Serial.print(" d_error:"); Serial.print(d_error);
-  //Serial.print(" kp_term:"); Serial.print(Kp * error);
-  //Serial.print(" ki_term:"); Serial.print(Ki * sum_error);
-  //Serial.print(" kd_term:"); Serial.println(Kd * d_error); 
-  Serial.print(" dT:"); Serial.println(dT);
-  
-}
-
-void printMotorInfoMatlab()  
-{                                                                      
-
-   Serial.print(" ");                  
-   Serial.print(omega_actual_filter);
-   Serial.print(" ");                  
-   Serial.print(Kp * error);
-   Serial.print(" ");                  
-   Serial.print(Ki * sum_error);
-   Serial.print(" ");                  
-   Serial.print(Kd * d_error);
-   Serial.print(" ");                  
-   Serial.print(k*looptime);
-   
-   //Serial.print(" ");                  
-   //Serial.print(w);
-   //Serial.print(" ");                  
-   //Serial.print(PWM_val);
-   //Serial.print(" ");                  
-   //Serial.print(dT);
- 
-   Serial.println();
-
 }
 
 float KalmanFilter(float observe_Z){
@@ -308,3 +202,121 @@ void pwmCmd(){
             if (PWM_val <= 0)   { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, LOW);  digitalWrite(InB, HIGH); }
             if (PWM_val > 0)    { analogWrite(motorIn1,abs(PWM_val));  digitalWrite(InA, HIGH);   digitalWrite(InB, LOW);}
   }
+
+void getMotorData()  
+{                                   
+  //converting ticks/s to rad/s
+  //omega_actual = 4.5;
+  omega_actual = ((Encoderpos - EncoderposPre)*((double)1/dT))*(double)(2*PI)/(CPR*gear_ratio);  //ticks/s to rad/s
+  EncoderposPre = Encoderpos;                 
+}
+
+double updatePid(double targetValue,double currentValue)   
+{   
+                                                 // PID correction
+
+                      
+  error = targetValue - currentValue; 
+  sum_error = sum_error + error * dT;
+  d_error = (double)(error - last_error) / dT;
+  pidTerm = Kp * error+ Ki * sum_error+ Kd * d_error;                          
+  last_error = error;  
+   
+  //Serial.print(" omega_actual_filter:"); Serial.print(omega_actual_filter);
+  return constrain(int(pidTerm/0.04039215686), -255, 255);
+}
+
+
+void doEncoder() {
+//   Encoderpos++;
+  pinAState = digitalRead(2);
+  pinBState = digitalRead(3);
+
+  if (pinAState == 0 && pinBState == 0) {
+    if (pinAStateOld == 1 && pinBStateOld == 0) // forward
+      Encoderpos ++;
+    if (pinAStateOld == 0 && pinBStateOld == 1) // reverse
+      Encoderpos --;
+  }
+  if (pinAState == 0 && pinBState == 1) {
+    if (pinAStateOld == 0 && pinBStateOld == 0) // forward
+      Encoderpos ++;
+    if (pinAStateOld == 1 && pinBStateOld == 1) // reverse
+      Encoderpos --;
+  }
+  if (pinAState == 1 && pinBState == 1) {
+    if (pinAStateOld == 0 && pinBStateOld == 1) // forward
+      Encoderpos ++;
+    if (pinAStateOld == 1 && pinBStateOld == 0) // reverse
+      Encoderpos --;
+  }
+
+  if (pinAState == 1 && pinBState == 0) {
+    if (pinAStateOld == 1 && pinBStateOld == 1) // forward
+      Encoderpos ++;
+    if (pinAStateOld == 0 && pinBStateOld == 0) // reverse
+      Encoderpos --;
+  }
+  pinAStateOld = pinAState;
+  pinBStateOld = pinBState;
+}
+
+void printMotorInfo()  
+{                                                                      
+   //Serial.print(" omega_target:"); Serial.print(omega_target);
+   //Serial.print(" omega_actual:"); Serial.print(omega_actual);
+   Serial.print(" omega_actual_filter:"); Serial.print(omega_actual_filter);
+   Serial.print(" kd_term:"); Serial.print(Kd * d_error); 
+   Serial.print(" kp_term:"); Serial.print(Kp * error);
+   //Serial.print(" dT:"); Serial.print(dT);
+   Serial.print(" error:"); Serial.print(error);
+     
+   Serial.println();
+
+}
+
+void printMotorInfo2()  
+{       
+   Serial.print(" PWM_val:"); Serial.print(PWM_val);
+   Serial.print(" k:"); Serial.print(k);
+   Serial.print(" theta:"); Serial.print(theta);
+   Serial.print(" toatal_theta:"); Serial.print(total_theta);
+   Serial.print(" w:"); Serial.print(w);   
+   Serial.print(" wave_count:"); Serial.print(wave_count); 
+   //Serial.print(" pidTerm:"); Serial.print(pidTerm);
+  //Serial.print(" last_error:"); Serial.print(last_error*1000);
+  //Serial.print(" d_error:"); Serial.print(d_error);
+  //Serial.print(" kp_term:"); Serial.print(Kp * error);
+  //Serial.print(" ki_term:"); Serial.print(Ki * sum_error);
+  //Serial.print(" kd_term:"); Serial.println(Kd * d_error); 
+  Serial.print(" dT:"); Serial.println(dT);
+  
+}
+
+void printMotorInfoMatlab()  
+{                                                                      
+   Serial.print(" ");                  
+   Serial.print(omega_target);
+   Serial.print(" ");                  
+   Serial.print(omega_actual_filter);
+   Serial.print(" ");  
+/*                   
+   Serial.print(Kp * error);
+   Serial.print(" ");                  
+   Serial.print(Ki * sum_error);
+   Serial.print(" ");                  
+   Serial.print(Kd * d_error);
+*/   
+   Serial.print(" ");                  
+   Serial.print(k*looptime);
+   
+   //Serial.print(" ");                  
+   //Serial.print(w);
+   //Serial.print(" ");                  
+   //Serial.print(PWM_val);
+   //Serial.print(" ");                  
+   //Serial.print(dT);
+ 
+   Serial.println();
+
+}
