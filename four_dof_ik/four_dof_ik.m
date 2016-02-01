@@ -1,47 +1,56 @@
+%%%%%%%%%%%%%%%%%%%%%%%%5
+% name: 4 dof ik
+% give xyz 
+% IK calculate th0 th1 th2 th3
+% th0 th1 th2 th3 put in FK to find x'y'z' 
+% compare xyz and x'y'z' have to be the same
+% modify 2016/1/11 : solve the error xyz=[0 -300 0] and [0 -300 -100] 
+
+
 clc
 clear
 %close all
-
-%%%%% SETTING XYZ %%%%%%%%%%%%%%%%%%
 t=0;T=300;
-x=T*sin(t);y=-T*cos(t);z=-150;L1=235;L2=250;
-
-x=300;y=300;z=0;
+x=T*sin(t);y=-T*cos(t);z=-150;L1=235;L2=235;%250;
+%x=166.17;y=235;z=-166.17;
+x=400;y=-100;z=0;
+%x=0;y=-470;z=0;
+fi=-(pi/2)*0;%pi/2;
 %syms x y z L1 L2
 %syms th1 th2 th3 th4
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 p=[x y z]; 
 norm(p)
-th4=pi-acos((L1^2+L2^2-norm(p)^2)/(2*L1*L2))
-a=asin(L2/norm(p))*sin(th4);
-%%%%%%% s is shoulder point
+%%%%%%%%%%%%% 1/11 add b term%%%%%%%%%%%%%%%%%%%%%%%%%%%
+b=acos((L1^2+L2^2-norm(p)^2)/(2*L1*L2))
+th4=pi-b
+%%%%%%%%%%%%%%%
+
+%%%%%%refresh a formula
+a=asin((L2/norm(p))*sin(b));
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+o=[0 0 0];
 s=[0 0 0];
 unit_z=[0 0 1];
-
-%%%%%% create unit vector of shoulde to EndEffect p
 tmp=p-s;
 norm_p_s=(tmp(1)^2+tmp(2)^2+tmp(3)^2)^0.5;
 unit_n=(p-s)/norm_p_s
 
-%%%%%% create u and v , these are orthogonal to unit_n
-unit_u=(unit_z+dot(unit_z,unit_n)*unit_n)
-unit_v=cross(unit_n,unit_u)
-
-%%%%%%% c is center of elbow circle 
+%%%%1/11 normalize the u to be the unit_u
+%before  u=(unit_z+dot(unit_z,unit_n)*unit_n)
+u=cross(unit_n,unit_z)
+unit_u=u/norm(u)
+%%%%1/11 normalize the v to be the unit_v
+v=cross(unit_n,unit_u)
+unit_v=v/norm(v)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c=s+cos(a)*L1*unit_n;
-
-%%%%%% ri is radius of elbow circle
 r=L1*sin(a);
+%fi=pi;%pi/2;
 
-%%%%% choose fi to decide whice point is elbow
-fi=pi/2;
 
-%%%%% decide elbow point e
 e=c+r*(cos(fi)*unit_u+sin(fi)*unit_v)
 ex=e(1);ey=e(2);ez=e(3);
-
-%%%%% use elbow point to find th0 and th1
 if(ex>=0&&ey<0)
     th1=atan(abs(ex)/abs(ey));
 else if (ex>=0&&ey>=0)
@@ -60,7 +69,6 @@ else if(ez<0)
   th2=atan(abs(ez)/(ex^2+ey^2)^0.5);
     end
 end
-
 %syms x y z th1 th2 th3 th4 L1 L2 
 %Fr0_T_Fr1=rotz(th1);
 %Fr1_T_Fr2=rotx(-pi/2)*rotx(th2);
@@ -89,7 +97,7 @@ Fr0_T_Fr4=Fr0_T_Fr1*Fr1_T_Fr2*Fr2_T_Fr3*Fr3_T_Fr4
 E=[Fr0_T_Fr4(1,4) Fr0_T_Fr4(2,4) Fr0_T_Fr4(3,4)];
 
 plot3([o(1) e(1)],[o(2) e(2)],[o(3) e(3)]);hold on;plot3([e(1) E(1)],[e(2) E(2)],[e(3) E(3)],'r');grid on;
-axis([-500,500,-500,500,-500,500]);view(0,-180);
+axis([-500,500,-500,500,-500,500]);%view(0,-180);
 x
 y
 z
@@ -98,3 +106,5 @@ th2
 th3
 th4
 norm_p=norm(p)
+E
+a
