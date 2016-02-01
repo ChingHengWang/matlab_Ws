@@ -1,0 +1,28 @@
+clc
+clear
+%close all
+fid1 = fopen('myFilter0.txt','rt');
+
+
+t=fscanf(fid1,'%f\n');
+raw=fscanf(fid2,'%f\n');
+filter=fscanf(fid3,'%f\n');
+fclose(fid1);
+fclose(fid2);
+fclose(fid3);
+
+
+
+N=length(target);% samples
+%Fs=50;%50Hz
+%Ts=0.02;
+%t=Ts*(1:N);
+
+
+
+%figure;plot(pwm_input);
+figure;
+plot(t,raw,'b.');
+hold on;
+plot(t,filter,'r.');
+title('kp80ki5kd0.2_interpolation');axis([0 25 -0.5 3]);
