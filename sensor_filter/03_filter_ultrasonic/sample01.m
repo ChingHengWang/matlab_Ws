@@ -23,8 +23,8 @@ plot(f,2*abs(Y(1:N/2))) ;
 figure;
 %plot time domain raw data
 %figure;
-plot(t,raw,'b.');hold on;
-plot(t,filter_raw,'r.');
+plot(t,raw,'b');hold on;
+plot(t,filter_raw,'r');
 axis([0 10 0 400]);
 grid on;
 
