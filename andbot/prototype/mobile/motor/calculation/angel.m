@@ -17,7 +17,7 @@
 % content: 
 % calcualte angel robot motor specification
 % input Vx(linear speed) Ax(linear acceleration) Wz(angular speed) Az(angular acceleration)
-%
+% output wr_rpm wl_rpm tq_r tq_l
 % theory: differential theory
 
 % reference :
