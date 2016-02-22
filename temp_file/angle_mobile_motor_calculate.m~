@@ -1,3 +1,29 @@
+% project name 
+% matlab_ws > andbot > prototype > mobile > motor > calculation > angel.m
+
+% resulte 
+wr_rpm = 185.3503
+wl_rpm =120.3822
+
+
+ar_rpm =
+
+  185.3503
+
+
+al_rpm =
+
+  120.3822
+
+
+tq_l =
+
+    0.1010
+
+
+tq_r =
+
+    0.1062
 
 % content: 
 % calcualte angel robot motor specification
@@ -18,7 +44,7 @@
 % 3530B spec
 % https://www.evernote.com/shard/s647/nl/110509500/a1efe80b-8a1f-4152-b48c-0907026a28f2?title=3530B%20motor%20spec
 
-% andbot prototype mobile motor calculation
+% google drive motor calculation :  andbot>prototype>mobile>motor>calculation
 % https://drive.google.com/drive/folders/0B134T1DTCk6tOFc0Mm5JVXVJOHc
 
 Vx=0.6; %
