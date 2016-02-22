@@ -6,8 +6,13 @@
 %wl_rpm =120.3822
 %ar_rpm =185.3503
 %al_rpm =120.3822
-%tq_l =0.1010
-%tq_r =0.1062
+%tq_l =0.1010 Nm  1.0 kgcm
+%tq_r =0.1062 Nm  1.0 kgcm
+
+% motor choice is 3530B 18.8 gear ratio 
+% https://www.evernote.com/shard/s647/nl/110509500/a1efe80b-8a1f-4152-b48c-0907026a28f2?title=3530B%20motor%20spec
+% rated speed is 215 rpm
+% rated torque is 1 kgcm
 
 % content: 
 % calcualte angel robot motor specification
