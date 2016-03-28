@@ -4,16 +4,25 @@
 %%% See ekfslam_sim.m for more information
 
 % control parameters
+%V= 3; % m/s
+%MAXG= 90*pi/180; % radians, maximum steering angle (-MAXG < g < MAXG)
+%RATEG= 60*pi/180; % rad/s, maximum rate of change in steer angle
+%WHEELBASE= 4; % metres, vehicle wheel-base
+%DT_CONTROLS= 0.025; % seconds, time interval between control signals
+
+%---------------------------------------------------
+% Zach Add
+% DIFFERENTIAL DRIVE control parameters
 V= 3; % m/s
-MAXG= 30*pi/180; % radians, maximum steering angle (-MAXG < g < MAXG)
-RATEG= 20*pi/180; % rad/s, maximum rate of change in steer angle
-WHEELBASE= 4; % metres, vehicle wheel-base
+WHEEL_SEPERATION= 1; % metres, wheel width
 DT_CONTROLS= 0.025; % seconds, time interval between control signals
+%---------------------------------------------------
 
 % control noises
-sigmaV= 0.3; % m/s
-sigmaG= (3.0*pi/180); % radians
-Q= [sigmaV^2 0; 0 sigmaG^2];
+sigmaV= 1;%0.3; % m/s
+sigmaW= 1;
+%sigmaG = (3.0*pi/180); % radians
+Q= [sigmaV^2 0; 0 sigmaW^2];
 
 % observation parameters
 MAX_RANGE= 30.0; % metres
@@ -32,8 +41,8 @@ GATE_AUGMENT= 25.0; % minimum distance for creation of new feature
 %   - percent probability mass is: 1-sigma bounds 40%, 2-sigma 86%, 3-sigma 99%, 4-sigma 99.9%.
 
 % waypoint proximity
-AT_WAYPOINT= 1.0; % metres, distance from current waypoint at which to switch to next waypoint
-NUMBER_LOOPS= 2; % number of loops through the waypoint list
+AT_WAYPOINT= 0.8; % metres, distance from current waypoint at which to switch to next waypoint
+NUMBER_LOOPS= 10; % number of loops through the waypoint list
 
 % switches
 SWITCH_CONTROL_NOISE= 1; % if 0, velocity and gamma are perfect

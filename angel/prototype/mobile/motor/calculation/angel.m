@@ -67,6 +67,6 @@ u=0.4; % assumption between metal and wood
 fl=0.5*m*al*r; % left wheel move force
 fr=0.5*m*ar*r; % right wheel move force
 
-tq_l=I*al+fr*r % left motor rotate torque
+tq_l=I*al+fl*r % left motor rotate torque
                % I is inertia of wheel 
 tq_r=I*ar+fr*r % right motor rotate torque
